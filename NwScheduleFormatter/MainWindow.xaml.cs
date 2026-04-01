@@ -1,29 +1,15 @@
 ﻿using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
+using NwScheduleFormatter.Configuration;
 using NwScheduleFormatter.Data;
 using NwScheduleFormatter.Enumerations;
 using NwScheduleFormatter.Helpers;
 using NwScheduleFormatter.Models;
-using PdfSharp.Drawing;
+using NwScheduleFormatter.Services;
 using PdfSharp.Fonts;
-using PdfSharp.Pdf;
-using System;
-using System.IO; // Necessário para salvar o arquivo
-using System.Text;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using static System.Collections.Specialized.BitVector32;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 using Colors = MigraDoc.DocumentObjectModel.Colors;
-using Paragraph = MigraDoc.DocumentObjectModel.Paragraph;
 using Section = MigraDoc.DocumentObjectModel.Section;
 using Style = MigraDoc.DocumentObjectModel.Style;
 using Table = MigraDoc.DocumentObjectModel.Tables.Table;
@@ -35,9 +21,6 @@ namespace NwScheduleFormatter;
 /// </summary>
 public partial class MainWindow : Window
 {
-    private const string CONGREGATION_NAME = "EURICO CHAVES";
-    private const string START_TIME = "19:30";
-
     public MainWindow()
     {
         InitializeComponent();
@@ -180,7 +163,7 @@ public partial class MainWindow : Window
         // 1. Cria um novo documento MigraDoc
         var document = new Document();
         document.Info.Title = "Programação da Reunião do Meio de Semana";
-        document.Info.Author = CONGREGATION_NAME;
+        document.Info.Author = ApplicationSettings.CONGREGATION_NAME;
 
         // 2. Define os estilos padrão do documento
         DefineStyles(document);
@@ -212,7 +195,7 @@ public partial class MainWindow : Window
             table.AddColumn(Unit.FromCentimeter(3));
             table.AddColumn(Unit.FromCentimeter(4));
 
-            var timeSplit = START_TIME.Split(':');
+            var timeSplit = ApplicationSettings.START_TIME.Split(':');
             var time = new TimeOnly(Convert.ToInt32(timeSplit[0]), Convert.ToInt32(timeSplit[1]));
 
             AddRow(table, time.ToString("HH:mm"), $"• Cântico {meetings[i].InitialSong.Number}", "Oração", meetings[i].OpeningPrayer);
@@ -281,6 +264,10 @@ public partial class MainWindow : Window
 
         // 11. Salva o documento PDFsharp
         pdfRenderer.PdfDocument.Save(outputPath);
+        pdfRenderer.PdfDocument.Close();
+
+        var fileService = new FileService();
+        fileService.CreateStudantDesignationDocuments(meetings, outputPath.Replace(".pdf", "_Designações.pdf"));
     }
 
     private void WritePageHeader(Section section)
@@ -430,53 +417,5 @@ public partial class MainWindow : Window
         style.Font.Color = MigraDoc.DocumentObjectModel.Color.FromRgb(87, 90, 93);
         style.Font.Bold = true;
         style.ParagraphFormat.Alignment = ParagraphAlignment.Left;
-    }
-
-    /// <summary>
-    /// Adiciona uma linha de dados à tabela com formatação de fundo alternada.
-    /// </summary>
-    private void AddTableRow(Table table, string time, string activity, bool isHeaderRow, bool isSubEntry = false)
-    {
-        Row row = table.AddRow();
-        row.HeightRule = RowHeightRule.AtLeast;
-        row.Height = Unit.FromCentimeter(0.8); // Altura mínima para as linhas da tabela
-
-        // Cor de fundo alternada para as linhas de dados
-        if (!isHeaderRow && table.Rows.Count % 2 != 0) // Contando a partir de 1, para que a 2ª, 4ª, etc. tenham cor
-        {
-            row.Shading.Color = MigraDoc.DocumentObjectModel.Color.FromRgb(240, 240, 240); // Cinza claro para linhas alternadas
-        }
-
-        // Célula do tempo
-        Cell timeCell = row.Cells[0];
-        timeCell.AddParagraph(time);
-        timeCell.Format.Alignment = ParagraphAlignment.Left;
-        timeCell.VerticalAlignment = MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Center;
-        timeCell.Format.Font.Bold = isHeaderRow; // Tempo no cabeçalho bold
-
-        // Célula da atividade
-        Cell activityCell = row.Cells[1];
-        Paragraph p = activityCell.AddParagraph(activity);
-        p.Format.Alignment = ParagraphAlignment.Left;
-        p.Format.LeftIndent = isSubEntry ? Unit.FromCentimeter(0.5) : 0; // Pequeno recuo para sub-entradas
-
-        activityCell.VerticalAlignment = MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Center;
-        activityCell.Format.Font.Bold = isHeaderRow; // Atividade no cabeçalho bold
-    }
-
-    /// <summary>
-    /// Adiciona uma linha de cabeçalho de seção à tabela com cor de fundo específica.
-    /// </summary>
-    private void AddSectionHeader(Table table, string headerText)
-    {
-        Row row = table.AddRow();
-        row.Shading.Color = MigraDoc.DocumentObjectModel.Color.FromRgb(70, 130, 180); // Azul similar ao do exemplo anterior
-        row.Height = Unit.FromCentimeter(0.8);
-        row.VerticalAlignment = MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Center;
-
-        Cell cell = row.Cells[0];
-        cell.MergeRight = table.Columns.Count - 1; // Mescla a célula para ocupar a largura total da tabela
-        //cell.AddParagraph(headerText, "SectionHeader"); // Usa o estilo SectionHeader
-        cell.AddParagraph(headerText); // Usa o estilo SectionHeader
     }
 }

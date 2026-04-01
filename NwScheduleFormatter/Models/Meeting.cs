@@ -1,6 +1,6 @@
 ﻿namespace NwScheduleFormatter.Models;
 
-internal class Meeting
+public class Meeting
 {
     public Meeting() { }
 

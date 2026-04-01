@@ -10,13 +10,16 @@ public class JwMeetingReader
     private const string JW_BASE_URL = "https://www.jw.org";
     private const string JW_WORKBOOK_URL_SUFFIX = "/pt/biblioteca/jw-apostila-do-mes/";
 
+    private string _workbookListHtml;
+
     public async Task<JwWebsiteMeeting> ReadFromJwWebsiteAsync(DateOnly mondayDate)
     {
         var url = GetUrlForMonth(mondayDate);
-        var workbookListHtml = await GetHtmlAsync(url);
+        if (string.IsNullOrWhiteSpace(_workbookListHtml))
+            _workbookListHtml = await GetHtmlAsync(url);
 
         var workbookUrlSuffix =  Regex
-                .Match(workbookListHtml, $@"<a href=""(\S+)"">\s*{DateHelper.GetWeekInFull(mondayDate)}").Groups[1].Value;
+                .Match(_workbookListHtml, $@"<a href=""(\S+)"">\s*{DateHelper.GetWeekInFull(mondayDate)}").Groups[1].Value;
 
         var workbookHtml = await GetHtmlAsync($"{JW_BASE_URL}{workbookUrlSuffix}");
 

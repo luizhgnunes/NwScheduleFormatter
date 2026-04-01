@@ -1,6 +1,6 @@
 ﻿namespace NwScheduleFormatter.Models;
 
-internal class CongregationBibleStudy
+public class CongregationBibleStudy
 {
     public string Speaker { get; set; }
     public string Reader { get; set; }

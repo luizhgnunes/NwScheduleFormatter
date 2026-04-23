@@ -25,7 +25,7 @@ public class JwMeetingReader
 
         var meeting = new JwWebsiteMeeting();
         meeting.InitialSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)</strong></a> <strong>e oração \| Comentários iniciais").Groups[1].Value);
-        meeting.MiddleSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)</strong></a></h3>").Groups[1].Value);
+        meeting.MiddleSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico(\s+|&nbsp;)(\d+)</strong></a></h3>").Groups[2].Value);
         meeting.FinalSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)</a></span> e oração</h3>").Groups[1].Value);
         meeting.Apply1DurationMinutes = Convert.ToInt16(Regex.Match(workbookHtml, @">4\.[\s\S]*?\((\d+) min\)").Groups[1].Value);
         meeting.Apply2DurationMinutes = Convert.ToInt16(Regex.Match(workbookHtml, @">5\.[\s\S]*?\((\d+) min\)").Groups[1].Value);

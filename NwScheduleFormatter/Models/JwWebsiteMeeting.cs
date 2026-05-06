@@ -2,6 +2,8 @@
 
 public class JwWebsiteMeeting
 {
+    public string WeeklyBibleReading { get; set; }
+
     public Song InitialSong { get; set; } = new();
     public Song MiddleSong { get; set; } = new();
     public Song FinalSong { get; set; } = new();

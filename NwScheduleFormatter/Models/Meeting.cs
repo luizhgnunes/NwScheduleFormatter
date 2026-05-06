@@ -11,6 +11,8 @@ public class Meeting
 
     public DateOnly Date { get; set; }
 
+    public string WeeklyBibleReading { get; set; }
+
     public string OpeningPrayer { get; set; }
     public string Chairman { get; set; } // President
     public Song InitialSong { get; set; } = new();

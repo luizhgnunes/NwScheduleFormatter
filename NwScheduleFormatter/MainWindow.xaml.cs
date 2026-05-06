@@ -26,6 +26,7 @@ public partial class MainWindow : Window
         InitializeComponent();
         PopulateYearComboBox();
         PopulateMonthComboBox();
+        PopulateDefaultOutputDirectory();
     }
 
     private void PopulateYearComboBox()
@@ -49,14 +50,20 @@ public partial class MainWindow : Window
         MonthComboBox.SelectedIndex = currentMonth - 1;
     }
 
-    private async void GenerateButton_Click(object sender, RoutedEventArgs e)
+    private void PopulateDefaultOutputDirectory()
     {
-        await GenerateMeetingSchedulePdf(
-            @"C:\Destination\Path");
+        DirectoryTextBox.Text = $@"{ApplicationSettings.DEFAULT_OUTPUT_DIRECTORY}";
     }
 
-    public async Task GenerateMeetingSchedulePdf(string outputPath)
+    private async void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
+        var filePath = System.IO.Path.Combine(DirectoryTextBox.Text, $"{YearComboBox.SelectedItem}-{MonthComboBox.SelectedItem} S-140_T Programação Reunião Meio de Semana.pdf");
+        await GenerateMeetingSchedulePdf(DirectoryTextBox.Text);
+    }
+
+    public async Task GenerateMeetingSchedulePdf(string outputDirectory)
+    {
+        var superintendentVisitSchedule = new SuperintendentVisitSchedule();
         var nwCsvRecords = NwCsvReader.ReadFromCsv(
             InputFileTextBox.Text,
             (int)YearComboBox.SelectedItem, (int)MonthComboBox.SelectedItem);
@@ -71,6 +78,7 @@ public partial class MainWindow : Window
                 meeting = new Meeting(record.Date);
 
                 var jwWebsiteMeeting = await jwMeetingReader.ReadFromJwWebsiteAsync(meeting.Date);
+                meeting.WeeklyBibleReading = jwWebsiteMeeting.WeeklyBibleReading;
                 meeting.InitialSong = jwWebsiteMeeting.InitialSong;
                 meeting.MiddleSong = jwWebsiteMeeting.MiddleSong;
                 meeting.FinalSong = jwWebsiteMeeting.FinalSong;
@@ -173,8 +181,8 @@ public partial class MainWindow : Window
         section.PageSetup.PageFormat = PageFormat.A4;
         section.PageSetup.LeftMargin = "2.0cm";
         section.PageSetup.RightMargin = "2.0cm";
-        section.PageSetup.TopMargin = "1.0cm";
-        section.PageSetup.BottomMargin = "1.0cm";
+        section.PageSetup.TopMargin = "0.8cm";
+        section.PageSetup.BottomMargin = "0.8cm";
 
         for (var i = 0; i < meetings.Count; i++)
         {
@@ -187,7 +195,7 @@ public partial class MainWindow : Window
             else
                 addBlankRow = true;
 
-            WriteDateAndPresidentRow(section, DateHelper.GetWeekInFull(meetings[i].Date).ToUpper(), meetings[i].Chairman, addBlankRow);
+            WriteDateAndPresidentRow(section, DateHelper.GetWeekInFull(meetings[i].Date).ToUpper(), meetings[i].Chairman, meetings[i].WeeklyBibleReading, addBlankRow);
 
             var table = section.AddTable();
             table.AddColumn(Unit.FromCentimeter(2));
@@ -202,7 +210,7 @@ public partial class MainWindow : Window
             time = time.AddMinutes(5);
             AddRow(table, time.ToString("HH:mm"), "• Comentários iniciais (1 min)");
 
-            WriteHeaderRow(table, "TESOUROS DA PALAVRA DE DEUS", MigraDoc.DocumentObjectModel.Color.FromRgb(87, 90, 93));
+            WriteHeaderRow(table, "TESOUROS DA PALAVRA DE DEUS", Color.FromRgb(87, 90, 93));
             time = time.AddMinutes(1);
             AddRow(table, time.ToString("HH:mm"), $"{meetings[i].TreasuresFromGodsWord.Treasures.Theme} (10 min)", "", meetings[i].TreasuresFromGodsWord.Treasures.Speaker);
             time = time.AddMinutes(10);
@@ -210,7 +218,7 @@ public partial class MainWindow : Window
             time = time.AddMinutes(10);
             AddRow(table, time.ToString("HH:mm"), "3. Leitura da Bíblia (4 min)", "", meetings[i].TreasuresFromGodsWord.BibleReading);
 
-            WriteHeaderRow(table, "FAÇA SEU MELHOR NO MINISTÉRIO", MigraDoc.DocumentObjectModel.Color.FromRgb(190, 137, 0));
+            WriteHeaderRow(table, "FAÇA SEU MELHOR NO MINISTÉRIO", Color.FromRgb(190, 137, 0));
             
             time = time.AddMinutes(5);
             var apply1Assistant = string.IsNullOrWhiteSpace(meetings[i].Apply1.Assistant + 1) ? string.Empty : $" / {meetings[i].Apply1.Assistant}";
@@ -233,7 +241,7 @@ public partial class MainWindow : Window
                 nextPartNumber++;
             }
 
-            WriteHeaderRow(table, "NOSSA VIDA CRISTÃ", MigraDoc.DocumentObjectModel.Color.FromRgb(126, 0, 36));
+            WriteHeaderRow(table, "NOSSA VIDA CRISTÃ", Color.FromRgb(126, 0, 36));
             int previousPartMinutes = string.IsNullOrWhiteSpace(meetings[i].Apply4.Speaker) ? (int)meetings[i].Apply3.DurationMinutes : (int)meetings[i].Apply4.DurationMinutes;
 
             time = time.AddMinutes(previousPartMinutes + 1);
@@ -250,24 +258,39 @@ public partial class MainWindow : Window
 
             previousPartMinutes = string.IsNullOrWhiteSpace(meetings[i].LivingAsChristhians2.Speaker) ? (int)meetings[i].LivingAsChristhians1.DurationMinutes : (int)meetings[i].LivingAsChristhians2.DurationMinutes;
             time = time.AddMinutes(previousPartMinutes);
-            AddRow(table, time.ToString("HH:mm"), $"{nextPartNumber}. Estudo bíblico de congregação (30 min)", "Dirigente/leitor", $"{meetings[i].CongregationBibleStudy.Speaker} / {meetings[i].CongregationBibleStudy.Reader}");
-            time = time.AddMinutes(30);
+
+            var isSuperintendentVisit = superintendentVisitSchedule.IsSuperintendentVisit(meetings[i].Date);
+
+            if (!isSuperintendentVisit)
+            {
+                AddRow(table, time.ToString("HH:mm"), $"{nextPartNumber}. Estudo bíblico de congregação (30 min)", "Dirigente/leitor", $"{meetings[i].CongregationBibleStudy.Speaker} / {meetings[i].CongregationBibleStudy.Reader}");
+                time = time.AddMinutes(30);
+            }
+            
             AddRow(table, time.ToString("HH:mm"), "• Comentários finais (3 min)");
-            AddRow(table, time.AddMinutes(3).ToString("HH:mm"), $"• Cântico {meetings[i].FinalSong.Number}", "Oração", $"{meetings[i].ClosingPrayer}");
+            time = time.AddMinutes(3);
+
+            if (isSuperintendentVisit)
+            {
+                var superintendentVisit = superintendentVisitSchedule.GetSuperintendentVisitSpeech(meetings[i].Date);
+                AddRow(table, time.ToString("HH:mm"), $"{nextPartNumber}. {superintendentVisit.Theme} (30 min)", "Orador", $"{superintendentVisit.Speaker}");
+                time = time.AddMinutes(30);
+                if ((superintendentVisit.Song?.Number ?? 0) > 0)
+                {
+                    meetings[i].FinalSong.Number = superintendentVisit.Song.Number;
+                    meetings[i].FinalSong.Description = superintendentVisit.Song.Description;
+                }
+            }
+
+            AddRow(table, time.ToString("HH:mm"), $"• Cântico {meetings[i].FinalSong.Number}", "Oração", $"{meetings[i].ClosingPrayer}");
         }
-
-
-        // 10. Renderiza o documento MigraDoc para um documento PDFsharp
-        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true);
-        pdfRenderer.Document = document;
-        pdfRenderer.RenderDocument();
-
-        // 11. Salva o documento PDFsharp
-        pdfRenderer.PdfDocument.Save(outputPath);
-        pdfRenderer.PdfDocument.Close();
+        var monthFileName = MonthComboBox.SelectedItem.ToString().PadLeft(2, '0');
+        var outputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} S-140_T Programação Reunião Meio de Semana.pdf");
+        FileService.SaveFile(document, outputPath);
 
         var fileService = new FileService();
-        fileService.CreateStudantDesignationDocuments(meetings, outputPath.Replace(".pdf", "_Designações.pdf"));
+        var designationsOutputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} Designações Reunião Meio de Semana.pdf");
+        fileService.CreateStudantDesignationDocuments(meetings, designationsOutputPath);
     }
 
     private void WritePageHeader(Section section)
@@ -295,7 +318,7 @@ public partial class MainWindow : Window
         timeCell1.Format.Alignment = ParagraphAlignment.Left;
     }
 
-    private void WriteDateAndPresidentRow(Section section, string date = "[DATA]", string presidentName = "[Nome]", bool addBlankLine = false)
+    private void WriteDateAndPresidentRow(Section section, string date = "[DATA]", string presidentName = "[Nome]", string weeklyBibleReading = "[Leitura Semanal da Bíblia]", bool addBlankLine = false)
     {
         var table = section.AddTable();
         table.AddColumn(Unit.FromCentimeter(10));
@@ -315,7 +338,7 @@ public partial class MainWindow : Window
         row.VerticalAlignment = MigraDoc.DocumentObjectModel.Tables.VerticalAlignment.Center;
 
         var timeCell0 = row.Cells[0];
-        timeCell0.AddParagraph($"{date} | LEITURA SEMANAL DA BÍBLIA");
+        timeCell0.AddParagraph($"{date} | {weeklyBibleReading}");
         timeCell0.Format.Font = new Font("Arial", 11);
         timeCell0.Format.Font.Bold = true;
         timeCell0.Format.Alignment = ParagraphAlignment.Left;
@@ -328,7 +351,7 @@ public partial class MainWindow : Window
 
         var timeCell2 = row.Cells[2];
         timeCell2.AddParagraph(presidentName);
-        timeCell2.Format.Font = new Font("Arial", 11);
+        timeCell2.Format.Font = new Font("Arial", 10);
         timeCell2.Format.Alignment = ParagraphAlignment.Left;
     }
 
@@ -373,7 +396,7 @@ public partial class MainWindow : Window
 
         var timeCell3 = row.Cells[3];
         timeCell3.AddParagraph(name);
-        timeCell3.Format.Font = new Font("Arial", 11);
+        timeCell3.Format.Font = new Font("Arial", 10);
         timeCell3.Format.Alignment = ParagraphAlignment.Left;
     }
 

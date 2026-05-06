@@ -3,6 +3,7 @@ using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using NwScheduleFormatter.Configuration;
 using NwScheduleFormatter.Models;
+using System.IO;
 
 namespace NwScheduleFormatter.Services;
 
@@ -52,13 +53,7 @@ public class FileService
             AddRow(table, designationCards[i], i + 1 < designationCards.Count ? designationCards[i + 1] : null);
         }
 
-        // 10. Renderiza o documento MigraDoc para um documento PDFsharp
-        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true);
-        pdfRenderer.Document = document;
-        pdfRenderer.RenderDocument();
-
-        // 11. Salva o documento PDFsharp
-        pdfRenderer.PdfDocument.Save(outputPath);
+        SaveFile(document, outputPath);
     }
 
     /// <summary>
@@ -181,5 +176,25 @@ public class FileService
         formVersionRow.VerticalAlignment = VerticalAlignment.Bottom;
 
         return designationTable;
+    }
+
+    public static void SaveFile(Document document, string outputPath)
+    {
+        PdfDocumentRenderer pdfRenderer = new PdfDocumentRenderer(true);
+        pdfRenderer.Document = document;
+        pdfRenderer.RenderDocument();
+        
+        var index = 1;
+        while (File.Exists(outputPath))
+        {
+            outputPath = @$"{Path.GetDirectoryName(outputPath)}\{Path.GetFileNameWithoutExtension(outputPath)} ({index}){Path.GetExtension(outputPath)}";
+            index++;
+        }
+
+        if (!Directory.Exists(Path.GetDirectoryName(outputPath)))
+            Directory.CreateDirectory(Path.GetDirectoryName(outputPath));
+
+        pdfRenderer.PdfDocument.Save(outputPath);
+        pdfRenderer.PdfDocument.Close();
     }
 }

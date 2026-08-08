@@ -27,7 +27,7 @@ public class JwMeetingReader
         meeting.WeeklyBibleReading = Regex.Match(workbookHtml, @"<header>[\s\S]*?><strong>([\s\S]*?)</strong></a></h2>[\s\S]*?</header>").Groups[1].Value;
         meeting.InitialSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)</strong></a> <strong>e oração \| Comentários iniciais").Groups[1].Value);
         meeting.MiddleSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico(\s+|&nbsp;)(\d+)</strong></a></h3>").Groups[2].Value);
-        meeting.FinalSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)</a></span> e oração</h3>").Groups[1].Value);
+        meeting.FinalSong.Number = Convert.ToInt16(Regex.Match(workbookHtml, @">Cântico\s+(\d+)(</strong>)?</a></span>\s*(<strong>)?e oração(</strong>)?(</span>)?</h3>").Groups[1].Value);
         meeting.Apply1DurationMinutes = Convert.ToInt16(Regex.Match(workbookHtml, @">4\.[\s\S]*?\((\d+) min\)").Groups[1].Value);
         meeting.Apply2DurationMinutes = Convert.ToInt16(Regex.Match(workbookHtml, @">5\.[\s\S]*?\((\d+) min\)").Groups[1].Value);
         meeting.Apply3DurationMinutes = Convert.ToInt16(Regex.Match(workbookHtml, @">6\.[\s\S]*?\((\d+) min\)").Groups[1].Value);

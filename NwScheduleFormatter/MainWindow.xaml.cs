@@ -232,13 +232,13 @@ public partial class MainWindow : Window
             var apply3Assistant = string.IsNullOrWhiteSpace(meetings[i].Apply3.Assistant) ? string.Empty : $" / {meetings[i].Apply3.Assistant}";
             AddRow(table, time.ToString("HH:mm"), $"{meetings[i].Apply3.Theme} ({meetings[i].Apply3.DurationMinutes} min)", "", $"{meetings[i].Apply3.Speaker}{apply3Assistant}");
             
-            short nextPartNumber = 7;
+            short partNumber = 7;
             if (!string.IsNullOrWhiteSpace(meetings[i].Apply4.Speaker))
             {
                 time = time.AddMinutes((int)meetings[i].Apply3.DurationMinutes);
                 var apply4Assistant = string.IsNullOrWhiteSpace(meetings[i].Apply4.Assistant) ? string.Empty : $" / {meetings[i].Apply4.Assistant}";
-                AddRow(table, time.ToString("HH:mm"), $"{meetings[i].Apply4.Theme} ({meetings[i].Apply4.DurationMinutes} min)", "", $"{meetings[i].Apply4.Speaker}{apply4Assistant}");
-                nextPartNumber++;
+                AddRow(table, time.ToString("HH:mm"), $"{meetings[i].Apply4.Theme} ({meetings[i].Apply4.DurationMinutes} min)", "", $"{meetings[i].Apply4.Speaker}{apply4Assistant}", partNumber);
+                partNumber++;
             }
 
             WriteHeaderRow(table, "NOSSA VIDA CRISTÃ", Color.FromRgb(126, 0, 36));
@@ -247,13 +247,13 @@ public partial class MainWindow : Window
             time = time.AddMinutes(previousPartMinutes + 1);
             AddRow(table, time.ToString("HH:mm"), $"• Cântico {meetings[i].MiddleSong.Number}");
             time = time.AddMinutes(5);
-            AddRow(table, time.ToString("HH:mm"), $"{meetings[i].LivingAsChristhians1.Theme} ({meetings[i].LivingAsChristhians1.DurationMinutes} min)", "", $"{meetings[i].LivingAsChristhians1.Speaker}");
-            nextPartNumber++;
+            AddRow(table, time.ToString("HH:mm"), $"{meetings[i].LivingAsChristhians1.Theme} ({meetings[i].LivingAsChristhians1.DurationMinutes} min)", "", $"{meetings[i].LivingAsChristhians1.Speaker}", partNumber);
+            partNumber++;
             if (!string.IsNullOrWhiteSpace(meetings[i].LivingAsChristhians2.Speaker))
             {
                 time = time.AddMinutes((int)meetings[i].LivingAsChristhians1.DurationMinutes);
-                AddRow(table, time.ToString("HH:mm"), $"{meetings[i].LivingAsChristhians2.Theme} ({meetings[i].LivingAsChristhians2.DurationMinutes} min)", "", $"{meetings[i].LivingAsChristhians2.Speaker}");
-                nextPartNumber++;
+                AddRow(table, time.ToString("HH:mm"), $"{meetings[i].LivingAsChristhians2.Theme} ({meetings[i].LivingAsChristhians2.DurationMinutes} min)", "", $"{meetings[i].LivingAsChristhians2.Speaker}", partNumber);
+                partNumber++;
             }
 
             previousPartMinutes = string.IsNullOrWhiteSpace(meetings[i].LivingAsChristhians2.Speaker) ? (int)meetings[i].LivingAsChristhians1.DurationMinutes : (int)meetings[i].LivingAsChristhians2.DurationMinutes;
@@ -263,7 +263,7 @@ public partial class MainWindow : Window
 
             if (!isSuperintendentVisit)
             {
-                AddRow(table, time.ToString("HH:mm"), $"{nextPartNumber}. Estudo bíblico de congregação (30 min)", "Dirigente/leitor", $"{meetings[i].CongregationBibleStudy.Speaker} / {meetings[i].CongregationBibleStudy.Reader}");
+                AddRow(table, time.ToString("HH:mm"), $"{partNumber}. Estudo bíblico de congregação (30 min)", "Dirigente/leitor", $"{meetings[i].CongregationBibleStudy.Speaker} / {meetings[i].CongregationBibleStudy.Reader}");
                 time = time.AddMinutes(30);
             }
             
@@ -273,7 +273,7 @@ public partial class MainWindow : Window
             if (isSuperintendentVisit)
             {
                 var superintendentVisit = superintendentVisitSchedule.GetSuperintendentVisitSpeech(meetings[i].Date);
-                AddRow(table, time.ToString("HH:mm"), $"{nextPartNumber}. {superintendentVisit.Theme} (30 min)", "Orador", $"{superintendentVisit.Speaker}");
+                AddRow(table, time.ToString("HH:mm"), $"{partNumber}. {superintendentVisit.Theme} (30 min)", "Orador", $"{superintendentVisit.Speaker}");
                 time = time.AddMinutes(30);
                 if ((superintendentVisit.Song?.Number ?? 0) > 0)
                 {
@@ -372,7 +372,7 @@ public partial class MainWindow : Window
         timeCell0.Format.Alignment = ParagraphAlignment.Left;
     }
 
-    private void AddRow(Table table, string time, string theme = "", string title = "", string name = "")
+    private void AddRow(Table table, string time, string theme = "", string title = "", string name = "", short? partNumber = null)
     {
         var row = table.AddRow();
         row.HeightRule = RowHeightRule.AtLeast;
@@ -383,6 +383,13 @@ public partial class MainWindow : Window
         timeCell0.AddParagraph(time);
         timeCell0.Style = "TimeStyle";
 
+        if (partNumber.HasValue && !string.IsNullOrWhiteSpace(theme))
+        {
+            theme = theme.Trim();
+            if (!theme.StartsWith($"{partNumber}."))
+                theme = $"{partNumber}. {theme}";
+        }
+        
         var timeCell1 = row.Cells[1];
         timeCell1.AddParagraph(theme);
         timeCell1.Format.Font = new Font("Arial", 11);

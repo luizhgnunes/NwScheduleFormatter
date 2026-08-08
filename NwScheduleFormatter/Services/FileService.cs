@@ -125,7 +125,7 @@ public class FileService
         var pName = nameRow.Cells[0].AddParagraph();
         pName.AddText("Nome: ");
         pName.Style = "Label";
-        var name = pName.AddFormattedText(designationCard.Presentation.Speaker);
+        var name = pName.AddFormattedText(designationCard.Presentation.Speaker ?? string.Empty);
         name.Style = "Normal";
 
         var assistantRow = designationTable.AddRow();

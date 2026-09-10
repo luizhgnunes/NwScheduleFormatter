@@ -11,7 +11,7 @@ public static class DateHelper
         if (isWeekEndsNextMonth)
         {
             var nextMonthName = GetMonthName(weekEndDate.Month);
-            return $"{mondayDate.Day} de {monthName}–{weekEndDate.Day} de {nextMonthName}";
+            return $"{mondayDate.Day} de {monthName}–{weekEndDate.Day}{(weekEndDate.Day == 1 ? ".º" : "")} de {nextMonthName}";
         }
 
         return $"{mondayDate.Day}-{mondayDate.Day + 6} de {monthName}";

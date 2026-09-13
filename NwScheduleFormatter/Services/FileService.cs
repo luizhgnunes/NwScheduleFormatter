@@ -9,7 +9,7 @@ namespace NwScheduleFormatter.Services;
 
 public class FileService
 {
-    public void CreateStudantDesignationDocuments(List<Meeting> meetings, string outputPath)
+    public void CreateStudentDesignationDocuments(List<Meeting> meetings, string outputPath)
     {
         // 1. Cria um novo documento MigraDoc
         var document = new Document();

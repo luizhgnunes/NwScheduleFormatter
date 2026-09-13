@@ -290,7 +290,7 @@ public partial class MainWindow : Window
 
         var fileService = new FileService();
         var designationsOutputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} Designações Reunião Meio de Semana.pdf");
-        fileService.CreateStudantDesignationDocuments(meetings, designationsOutputPath);
+        fileService.CreateStudentDesignationDocuments(meetings, designationsOutputPath);
     }
 
     private void WritePageHeader(Section section)

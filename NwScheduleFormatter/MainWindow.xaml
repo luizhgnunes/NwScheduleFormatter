@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:NwScheduleFormatter"
         mc:Ignorable="d"
-        Title="MainWindow" Height="400" Width="700">
+        Title="MainWindow" Height="350" Width="700">
     <Grid Margin="10">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
@@ -16,32 +16,46 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="75" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="25" />
+            <ColumnDefinition />
+            <ColumnDefinition Width="75" />
+        </Grid.ColumnDefinitions>
 
         <!-- Month selection label and combobox -->
-        <TextBlock Grid.Row="0" Text="Year:" Margin="0,0,0,2" />
-        <ComboBox x:Name="YearComboBox" Grid.Row="1" Height="30" VerticalAlignment="Top" Margin="0,0,0,8" />
+        <Label Grid.Row="1" Grid.Column="1" Content="Year:" VerticalAlignment="Bottom" FontSize="14" FontWeight="Bold" />
+        <ComboBox Grid.Row="2" Grid.Column="1" x:Name="YearComboBox" VerticalAlignment="Top" Margin="0,0,0,8" />
 
         <!-- Month selection label and combobox -->
-        <TextBlock Grid.Row="2" Text="Month:" Margin="0,0,0,2" />
-        <ComboBox x:Name="MonthComboBox" Grid.Row="3" Height="30" VerticalAlignment="Top" Margin="0,0,0,8" />
+        <Label Grid.Row="1" Grid.Column="3" Content="Month:" VerticalAlignment="Bottom" FontSize="14" FontWeight="Bold" />
+        <ComboBox x:Name="MonthComboBox" Grid.Row="2" Grid.Column="3" VerticalAlignment="Top" Margin="0,0,0,8" />
 
         <!-- Input file label and chooser -->
-        <TextBlock Grid.Row="4" Text="Input file:" Margin="0,0,0,2" />
-        <StackPanel Grid.Row="5" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
-            <TextBox x:Name="InputFileTextBox" Width="520" VerticalAlignment="Center" />
+        <Label Grid.Row="3" Grid.Column="1" Content="Input file:" VerticalAlignment="Bottom" FontSize="14" FontWeight="Bold" />
+        <StackPanel Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="3"  Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+            <TextBox x:Name="InputFileTextBox" Width="420" VerticalAlignment="Center" />
             <Button x:Name="BrowseInputButton" Content="Browse..." Width="80" Margin="8,0,0,0" />
         </StackPanel>
 
         <!-- Output directory label and chooser -->
-        <TextBlock Grid.Row="6" Text="Output directory:" Margin="0,0,0,2" />
-        <StackPanel Grid.Row="7" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
-            <TextBox x:Name="DirectoryTextBox" Width="520" VerticalAlignment="Center" />
+        <Label Grid.Row="6" Grid.Column="1" Content="Output directory:" VerticalAlignment="Bottom" FontSize="14" FontWeight="Bold" />
+        <StackPanel Grid.Row="7" Grid.Column="1" Grid.ColumnSpan="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,0,8">
+            <TextBox x:Name="DirectoryTextBox" Width="420" VerticalAlignment="Center" />
             <Button x:Name="BrowseButton" Content="Browse..." Width="80" Margin="8,0,0,0" />
         </StackPanel>
 
+        <CheckBox x:Name="CbxGenarateMeetingProgram" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Content="Generate meeting program file." IsChecked="True" Margin="0,0,0,8px" />
+        <CheckBox x:Name="CbxGenarateStudentDesignations" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" Content="Generate student designations file." IsChecked="True" Margin="0,0,0,8px" />
+        <CheckBox x:Name="CbxSendWhatsappMessage" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Content="Send WhatsApp message." Margin="0,0,0,8px" />
+
         <!-- Generate button -->
-        <Button x:Name="GenerateButton" Grid.Row="10" Content="Generate" Width="100" Height="30" HorizontalAlignment="Right" VerticalAlignment="Top" Click="GenerateButton_Click" />
+        <Button x:Name="GenerateButton" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" Content="Generate" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top" Click="GenerateButton_Click" />
     </Grid>
 </Window>

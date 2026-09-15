@@ -51,9 +51,9 @@
             <Button x:Name="BtnBrowseOutputDirectory" Content="Procurar..." Click="BtnBrowseOutputDirectory_Click" Width="80" Margin="8,0,0,0" />
         </StackPanel>
 
-        <CheckBox x:Name="CbxGenarateMeetingProgram" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Content="Gerar arquivo da programação da reunião." IsChecked="True" Margin="0,0,0,8px" />
-        <CheckBox x:Name="CbxGenarateStudentDesignations" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" Content="Gerar arquivo das designações dos estudantes." IsChecked="True" Margin="0,0,0,8px" />
-        <CheckBox x:Name="CbxSendWhatsappMessage" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Content="Enviar mensagem pelo WhatsApp." Margin="0,0,0,8px" />
+        <CheckBox x:Name="ChkGenarateMeetingProgram" Grid.Row="8" Grid.Column="1" Grid.ColumnSpan="3" Content="Gerar arquivo da programação da reunião." IsChecked="True" Margin="0,0,0,8px" />
+        <CheckBox x:Name="ChkGenarateStudentDesignations" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="3" Content="Gerar arquivo das designações dos estudantes." IsChecked="True" Margin="0,0,0,8px" />
+        <CheckBox x:Name="ChkSendWhatsappMessage" Grid.Row="10" Grid.Column="1" Grid.ColumnSpan="3" Content="Enviar mensagem pelo WhatsApp." Margin="0,0,0,8px" />
 
         <!-- Generate button -->
         <Button x:Name="GenerateButton" Grid.Row="11" Grid.Column="1" Grid.ColumnSpan="3" Content="Gerar" Width="100" Height="30" HorizontalAlignment="Center" VerticalAlignment="Top" Click="GenerateButton_Click" />

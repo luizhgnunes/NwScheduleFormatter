@@ -30,6 +30,12 @@ public partial class MainWindow : Window
         PopulateDefaultOutputDirectory();
     }
 
+    private async Task<bool> SendTestMessage()
+    {
+        var wa = new WhatsappService();
+        return await wa.SendTextMessageAsync("5581911112222", "Teste de envio de mensagem via WhatsApp");
+    }
+
     private void PopulateYearComboBox()
     {
         var currentYear = DateTime.Now.Year;
@@ -58,13 +64,16 @@ public partial class MainWindow : Window
 
     private async void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
-        var filePath = System.IO.Path.Combine(TxtOutputDirectory.Text, $"{YearComboBox.SelectedItem}-{MonthComboBox.SelectedItem} S-140_T Programação Reunião Meio de Semana.pdf");
-        await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text);
+        //await SendTestMessage();
+        var meetings = await GetMeetingScheduleFromCsv();
+        if (ChkGenarateMeetingProgram.IsChecked == true)
+            await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text, meetings);
+        if (ChkGenarateStudentDesignations.IsChecked == true)
+            await GenerateStudentDesignationsPdf(TxtOutputDirectory.Text, meetings);
     }
 
-    public async Task GenerateMeetingSchedulePdf(string outputDirectory)
+    public async Task<List<Meeting>> GetMeetingScheduleFromCsv()
     {
-        var superintendentVisitSchedule = new SuperintendentVisitSchedule();
         var nwCsvRecords = NwCsvReader.ReadFromCsv(
             TxtInputFile.Text,
             (int)YearComboBox.SelectedItem, (int)MonthComboBox.SelectedItem);
@@ -167,6 +176,13 @@ public partial class MainWindow : Window
                     break;
             }
         }
+
+        return meetings;
+    }
+
+    public async Task GenerateMeetingSchedulePdf(string outputDirectory, List<Meeting> meetings)
+    {
+        var superintendentVisitSchedule = new SuperintendentVisitSchedule();
 
         GlobalFontSettings.UseWindowsFontsUnderWindows = true;
         // 1. Cria um novo documento MigraDoc
@@ -289,6 +305,12 @@ public partial class MainWindow : Window
         var outputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} S-140_T Programação Reunião Meio de Semana.pdf");
         FileService.SaveFile(document, outputPath);
 
+
+    }
+
+    public async Task GenerateStudentDesignationsPdf(string outputDirectory, List<Meeting> meetings)
+    {
+        var monthFileName = MonthComboBox.SelectedItem.ToString().PadLeft(2, '0');
         var fileService = new FileService();
         var designationsOutputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} Designações Reunião Meio de Semana.pdf");
         fileService.CreateStudentDesignationDocuments(meetings, designationsOutputPath);

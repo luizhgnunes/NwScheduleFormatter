@@ -30,11 +30,11 @@ public partial class MainWindow : Window
         PopulateDefaultOutputDirectory();
     }
 
-    private async Task<bool> SendTestMessage()
-    {
-        var wa = new WhatsappService();
-        return await wa.SendTextMessageAsync("5581911112222", "Teste de envio de mensagem via WhatsApp");
-    }
+    //private async Task<bool> SendTestMessage()
+    //{
+    //    var wa = new WhatsappService();
+    //    return await wa.SendTextMessageAsync("5581911112222", "Teste de envio de mensagem via WhatsApp");
+    //}
 
     private void PopulateYearComboBox()
     {

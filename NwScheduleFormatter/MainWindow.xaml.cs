@@ -1,4 +1,5 @@
-﻿using MigraDoc.DocumentObjectModel;
+﻿using Microsoft.Win32;
+using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
 using MigraDoc.Rendering;
 using NwScheduleFormatter.Configuration;
@@ -52,20 +53,20 @@ public partial class MainWindow : Window
 
     private void PopulateDefaultOutputDirectory()
     {
-        DirectoryTextBox.Text = $@"{ApplicationSettings.DEFAULT_OUTPUT_DIRECTORY}";
+        TxtOutputDirectory.Text = $@"{ApplicationSettings.DEFAULT_OUTPUT_DIRECTORY}";
     }
 
     private async void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
-        var filePath = System.IO.Path.Combine(DirectoryTextBox.Text, $"{YearComboBox.SelectedItem}-{MonthComboBox.SelectedItem} S-140_T Programação Reunião Meio de Semana.pdf");
-        await GenerateMeetingSchedulePdf(DirectoryTextBox.Text);
+        var filePath = System.IO.Path.Combine(TxtOutputDirectory.Text, $"{YearComboBox.SelectedItem}-{MonthComboBox.SelectedItem} S-140_T Programação Reunião Meio de Semana.pdf");
+        await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text);
     }
 
     public async Task GenerateMeetingSchedulePdf(string outputDirectory)
     {
         var superintendentVisitSchedule = new SuperintendentVisitSchedule();
         var nwCsvRecords = NwCsvReader.ReadFromCsv(
-            InputFileTextBox.Text,
+            TxtInputFile.Text,
             (int)YearComboBox.SelectedItem, (int)MonthComboBox.SelectedItem);
 
         var jwMeetingReader = new JwMeetingReader();
@@ -447,5 +448,30 @@ public partial class MainWindow : Window
         style.Font.Color = MigraDoc.DocumentObjectModel.Color.FromRgb(87, 90, 93);
         style.Font.Bold = true;
         style.ParagraphFormat.Alignment = ParagraphAlignment.Left;
+    }
+
+    private void BtnBrowseInputFile_Click(object sender, RoutedEventArgs e)
+    {
+        var fileDialog = new OpenFileDialog();
+
+        fileDialog.Filter = "CSV files (*.csv)|*.csv|All files (*.*)|*.*";
+        fileDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        bool? result = fileDialog.ShowDialog();
+
+        if (result == true)
+            TxtInputFile.Text = fileDialog.FileName;
+    }
+
+    private void BtnBrowseOutputDirectory_Click(object sender, RoutedEventArgs e)
+    {
+        var folderDialog = new OpenFolderDialog();
+
+        folderDialog.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
+
+        bool? result = folderDialog.ShowDialog();
+
+        if (result == true)
+            TxtOutputDirectory.Text = folderDialog.FolderName;
     }
 }

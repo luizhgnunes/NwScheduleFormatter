@@ -12,6 +12,7 @@
     <PackageReference Include="PDFsharp" Version="6.2.4" />
     <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
     <PackageReference Include="PuppeteerSharp" Version="24.40.0" />
+    <PackageReference Include="Velopack" Version="1.2.0" />
   </ItemGroup>
 
 </Project>

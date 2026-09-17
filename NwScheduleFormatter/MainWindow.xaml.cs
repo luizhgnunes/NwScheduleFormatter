@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using MigraDoc.DocumentObjectModel;
 using MigraDoc.DocumentObjectModel.Tables;
-using MigraDoc.Rendering;
 using NwScheduleFormatter.Configuration;
 using NwScheduleFormatter.Data;
 using NwScheduleFormatter.Enumerations;
@@ -25,9 +24,15 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+
         PopulateYearComboBox();
         PopulateMonthComboBox();
         PopulateDefaultOutputDirectory();
+    }
+
+    private async void Window_Loaded(object sender, RoutedEventArgs e)
+    {
+        await UpdateService.CheckForUpdatesAsync();
     }
 
     //private async Task<bool> SendTestMessage()

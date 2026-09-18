@@ -12,6 +12,17 @@ public class JwMeetingReader
 
     private string _workbookListHtml;
 
+    public async Task<int> CountMonthMeetings(int year, int month) { 
+
+        var mondayDate = DateHelper.GetFirstMondayOfMonth(year, month);
+        var url = GetUrlForMonth(mondayDate);
+        if (string.IsNullOrWhiteSpace(_workbookListHtml))
+            _workbookListHtml = await GetHtmlAsync(url);
+
+        var matches = Regex.Matches(_workbookListHtml, $@"<a href=""(\S+)"">\s*(\d\d?-\d\d?\s+de\s+{DateHelper.GetMonthName(mondayDate.Month)}|\d\d?\s+de\s+{DateHelper.GetMonthName(mondayDate.Month)})", RegexOptions.IgnoreCase);
+        return matches.Count;
+    }
+
     public async Task<JwWebsiteMeeting> ReadFromJwWebsiteAsync(DateOnly mondayDate)
     {
         var url = GetUrlForMonth(mondayDate);

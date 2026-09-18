@@ -17,7 +17,14 @@ public static class DateHelper
         return $"{mondayDate.Day}-{mondayDate.Day + 6} de {monthName}";
     }
 
-    private static string GetMonthName(int month)
+    public static DateOnly GetFirstMondayOfMonth(int year, int month)
+    {
+        var firstDayOfMonth = new DateOnly(year, month, 1);
+        var daysUntilMonday = ((int)DayOfWeek.Monday - (int)firstDayOfMonth.DayOfWeek + 7) % 7;
+        return firstDayOfMonth.AddDays(daysUntilMonday);
+    }
+
+    public static string GetMonthName(int month)
     {
         return month switch
         {

@@ -70,21 +70,29 @@ public partial class MainWindow : Window
     private async void GenerateButton_Click(object sender, RoutedEventArgs e)
     {
         //await SendTestMessage();
-        var meetings = await GetMeetingScheduleFromCsv();
+        var progress = new Progress<int>(value =>
+        {
+            MainProgressBar.Value = value;
+            StatusLabel.Text = $"Processando: {value}%";
+        });
+
+        var meetings = await GetMeetingScheduleFromCsv(progress);
         if (ChkGenarateMeetingProgram.IsChecked == true)
-            await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text, meetings);
+            await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text, meetings, progress, ChkGenarateStudentDesignations.IsChecked == true ? 10 : 20);
         if (ChkGenarateStudentDesignations.IsChecked == true)
-            await GenerateStudentDesignationsPdf(TxtOutputDirectory.Text, meetings);
+            await GenerateStudentDesignationsPdf(TxtOutputDirectory.Text, meetings, progress, ChkGenarateMeetingProgram.IsChecked == true ? 10 : 20);
     }
 
-    public async Task<List<Meeting>> GetMeetingScheduleFromCsv()
+    public async Task<List<Meeting>> GetMeetingScheduleFromCsv(IProgress<int> progress)
     {
+        progress?.Report(0);
         var nwCsvRecords = NwCsvReader.ReadFromCsv(
             TxtInputFile.Text,
             (int)YearComboBox.SelectedItem, (int)MonthComboBox.SelectedItem);
 
         var jwMeetingReader = new JwMeetingReader();
         var meetings = new List<Meeting>();
+        var totalMeetings = await jwMeetingReader.CountMonthMeetings((int)YearComboBox.SelectedItem, (int)MonthComboBox.SelectedItem);
         foreach (var record in nwCsvRecords)
         {
             var meeting = meetings.Find(x => x.Date == record.Date);
@@ -180,12 +188,16 @@ public partial class MainWindow : Window
                     meeting.CongregationBibleStudy.Reader = record.Person;
                     break;
             }
+            var progressValue = (int)((meetings.Count / (double)totalMeetings) * 80);
+            progress?.Report(progressValue);
         }
+
+        progress?.Report(80);
 
         return meetings;
     }
 
-    public async Task GenerateMeetingSchedulePdf(string outputDirectory, List<Meeting> meetings)
+    public async Task GenerateMeetingSchedulePdf(string outputDirectory, List<Meeting> meetings, IProgress<int> progress, int progressSlice)
     {
         var superintendentVisitSchedule = new SuperintendentVisitSchedule();
 
@@ -305,20 +317,23 @@ public partial class MainWindow : Window
             }
 
             AddRow(table, time.ToString("HH:mm"), $"• Cântico {meetings[i].FinalSong.Number}", "Oração", $"{meetings[i].ClosingPrayer}");
+
+            var progressValue = (int)(((i + 1) / (double)meetings.Count) * progressSlice);
+            progress?.Report(progressValue + 80);
         }
         var monthFileName = MonthComboBox.SelectedItem.ToString().PadLeft(2, '0');
         var outputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} S-140_T Programação Reunião Meio de Semana.pdf");
         FileService.SaveFile(document, outputPath);
-
-
+        progress?.Report(80 + progressSlice);
     }
 
-    public async Task GenerateStudentDesignationsPdf(string outputDirectory, List<Meeting> meetings)
+    public async Task GenerateStudentDesignationsPdf(string outputDirectory, List<Meeting> meetings, IProgress<int> progress, int progressSlice)
     {
         var monthFileName = MonthComboBox.SelectedItem.ToString().PadLeft(2, '0');
         var fileService = new FileService();
         var designationsOutputPath = System.IO.Path.Combine(outputDirectory, $"{YearComboBox.SelectedItem}-{monthFileName} Designações Reunião Meio de Semana.pdf");
-        fileService.CreateStudentDesignationDocuments(meetings, designationsOutputPath);
+        fileService.CreateStudentDesignationDocuments(meetings, designationsOutputPath, progress, progressSlice);
+        progress?.Report(100);
     }
 
     private void WritePageHeader(Section section)

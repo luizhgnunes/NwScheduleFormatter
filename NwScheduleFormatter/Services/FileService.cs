@@ -9,7 +9,7 @@ namespace NwScheduleFormatter.Services;
 
 public class FileService
 {
-    public void CreateStudentDesignationDocuments(List<Meeting> meetings, string outputPath)
+    public void CreateStudentDesignationDocuments(List<Meeting> meetings, string outputPath, IProgress<int> progress, int progressSlice)
     {
         // 1. Cria um novo documento MigraDoc
         var document = new Document();
@@ -51,6 +51,7 @@ public class FileService
         for (var i = 0; i < designationCards.Count; i = i + 2)
         {
             AddRow(table, designationCards[i], i + 1 < designationCards.Count ? designationCards[i + 1] : null);
+            progress?.Report((100 - progressSlice) + (int)((i + 2) / (double)designationCards.Count * progressSlice));
         }
 
         SaveFile(document, outputPath);

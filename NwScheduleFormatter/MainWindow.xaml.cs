@@ -8,6 +8,7 @@ using NwScheduleFormatter.Helpers;
 using NwScheduleFormatter.Models;
 using NwScheduleFormatter.Services;
 using PdfSharp.Fonts;
+using System.Reflection;
 using System.Windows;
 using Colors = MigraDoc.DocumentObjectModel.Colors;
 using Section = MigraDoc.DocumentObjectModel.Section;
@@ -25,6 +26,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
 
+        SetWindowTitle();
+
         PopulateYearComboBox();
         PopulateMonthComboBox();
         PopulateDefaultOutputDirectory();
@@ -33,6 +36,12 @@ public partial class MainWindow : Window
     private async void Window_Loaded(object sender, RoutedEventArgs e)
     {
         await UpdateService.CheckForUpdatesAsync();
+    }
+
+    private void SetWindowTitle()
+    {
+        var version = Assembly.GetExecutingAssembly().GetName().Version;
+        this.Title = $"NwScheduleFormatter - v{version.Major}.{version.Minor}.{version.Build}";
     }
 
     //private async Task<bool> SendTestMessage()
@@ -67,9 +76,9 @@ public partial class MainWindow : Window
         TxtOutputDirectory.Text = $@"{ApplicationSettings.DEFAULT_OUTPUT_DIRECTORY}";
     }
 
-    private async void GenerateButton_Click(object sender, RoutedEventArgs e)
+    private async void BtnGenerate_Click(object sender, RoutedEventArgs e)
     {
-        //await SendTestMessage();
+        BtnGenerate.IsEnabled = false;
         var progress = new Progress<int>(value =>
         {
             MainProgressBar.Value = value;
@@ -81,6 +90,7 @@ public partial class MainWindow : Window
             await GenerateMeetingSchedulePdf(TxtOutputDirectory.Text, meetings, progress, ChkGenarateStudentDesignations.IsChecked == true ? 10 : 20);
         if (ChkGenarateStudentDesignations.IsChecked == true)
             await GenerateStudentDesignationsPdf(TxtOutputDirectory.Text, meetings, progress, ChkGenarateMeetingProgram.IsChecked == true ? 10 : 20);
+        BtnGenerate.IsEnabled = true;
     }
 
     public async Task<List<Meeting>> GetMeetingScheduleFromCsv(IProgress<int> progress)

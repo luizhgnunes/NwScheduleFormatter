@@ -1,6 +1,6 @@
-using NwScheduleFormatter.Data.Entities;
+﻿using NwScheduleFormatter.Data.Entities;
 
-namespace NwScheduleFormatter.Data.Repositories;
+namespace NwScheduleFormatter.Data.Repositories.Interfaces;
 
 /// <summary>
 /// Specific interface for operations with SendingOfDesignation.

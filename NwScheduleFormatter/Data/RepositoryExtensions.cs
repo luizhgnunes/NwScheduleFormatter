@@ -1,5 +1,5 @@
-using Microsoft.Extensions.DependencyInjection;
-using NwScheduleFormatter.Data.Repositories;
+﻿using Microsoft.Extensions.DependencyInjection;
+using NwScheduleFormatter.Data.Repositories.Interfaces;
 
 namespace NwScheduleFormatter.Data;
 

@@ -1,5 +1,5 @@
 ﻿using NwScheduleFormatter.Data.Entities;
-using NwScheduleFormatter.Data.Repositories;
+using NwScheduleFormatter.Data.Repositories.Interfaces;
 using NwScheduleFormatter.Models;
 using NwScheduleFormatter.Services.Interfaces;
 

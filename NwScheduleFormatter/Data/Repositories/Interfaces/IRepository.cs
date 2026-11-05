@@ -1,4 +1,4 @@
-namespace NwScheduleFormatter.Data.Repositories;
+﻿namespace NwScheduleFormatter.Data.Repositories.Interfaces;
 
 /// <summary>
 /// Generic interface for CRUD repository operations.

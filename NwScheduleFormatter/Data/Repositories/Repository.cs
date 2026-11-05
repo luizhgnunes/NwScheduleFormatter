@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+using NwScheduleFormatter.Data.Repositories.Interfaces;
 
 namespace NwScheduleFormatter.Data.Repositories;
 

@@ -1,18 +1,20 @@
-﻿using NwScheduleFormatter.Helpers;
+﻿using NwScheduleFormatter.Data.Interfaces;
+using NwScheduleFormatter.Helpers;
 using NwScheduleFormatter.Models;
 using PuppeteerSharp;
 using System.Text.RegularExpressions;
 
 namespace NwScheduleFormatter.Data;
 
-public class JwMeetingReader
+public class JwMeetingReader : IJwMeetingReader
 {
     private const string JW_BASE_URL = "https://www.jw.org";
     private const string JW_WORKBOOK_URL_SUFFIX = "/pt/biblioteca/jw-apostila-do-mes/";
 
     private string _workbookListHtml;
 
-    public async Task<int> CountMonthMeetings(int year, int month) { 
+    public async Task<int> CountMonthMeetings(int year, int month) 
+    { 
 
         var mondayDate = DateHelper.GetFirstMondayOfMonth(year, month);
         var url = GetUrlForMonth(mondayDate);
@@ -122,8 +124,8 @@ public class JwMeetingReader
 
             await page.GoToAsync(url, navigationOptions);
 
-            // Opcional: Aguarda um seletor específico se a página demorar a renderizar
-            // await page.WaitForSelectorAsync(".main-content"); 
+            // Wait for the page to load completely, including any JavaScript-rendered content
+            await Task.Delay(1000);
 
             // Retorna o HTML completo após a renderização do JavaScript
             return await page.GetContentAsync();

@@ -14,10 +14,10 @@ public class SendingOfDesignationRepository : Repository<SendingOfDesignation>, 
     {
     }
 
-    public async Task<SendingOfDesignation?> GetByReferenceAsync(string reference)
+    public async Task<SendingOfDesignation?> GetSentDesignationAsync(string reference, string name)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(reference);
-        return await _dbSet.FirstOrDefaultAsync(x => x.Reference == reference);
+        return await _dbSet.FirstOrDefaultAsync(x => x.Reference == reference && x.DesignatedName == name);
     }
 
     public async Task<IEnumerable<SendingOfDesignation>> GetActiveSendingsAsync()

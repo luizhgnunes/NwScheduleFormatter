@@ -8,9 +8,9 @@ namespace NwScheduleFormatter.Data.Repositories.Interfaces;
 public interface ISendingOfDesignationRepository : IRepository<SendingOfDesignation>
 {
     /// <summary>
-    /// Gets a sending of designation by its unique reference.
+    /// Gets a sending of designation by its unique reference and name.
     /// </summary>
-    Task<SendingOfDesignation?> GetByReferenceAsync(string reference);
+    Task<SendingOfDesignation?> GetSentDesignationAsync(string reference, string name);
 
     /// <summary>
     /// Gets all non-canceled sendings.

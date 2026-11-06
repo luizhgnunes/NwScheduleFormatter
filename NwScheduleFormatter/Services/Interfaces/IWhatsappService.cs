@@ -2,6 +2,7 @@
 
 public interface IWhatsappService
 {
+    Task LoadWhatsappCredentials();
     Task<string?> SendTextMessageAsync(string recipientPhoneNumber, string messageText);
     Task<string?> SendTemplateMessageAsync(string recipientPhoneNumber, string templateName, string languageCode = "pt_BR");
     Task<string?> SendTemplateMessageWithParametersAsync(string recipientPhoneNumber, string templateName, string[] parameters, string languageCode = "pt_BR");

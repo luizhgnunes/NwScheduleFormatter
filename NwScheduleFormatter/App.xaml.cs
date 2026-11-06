@@ -20,7 +20,7 @@ namespace NwScheduleFormatter
         public static SuperintendentVisitSchedule SuperintendentVisitSchedule { get; private set; }
         public static IServiceProvider? ServiceProvider { get; private set; }
 
-        protected override void OnStartup(StartupEventArgs e)
+        protected override async void OnStartup(StartupEventArgs e)
         {
             VelopackApp.Build().Run();
 
@@ -35,6 +35,9 @@ namespace NwScheduleFormatter
             SuperintendentVisitSchedule = new SuperintendentVisitSchedule();
             var jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Data", "superintendent-visits.json");
             SuperintendentVisitSchedule.LoadFromJson(jsonPath);
+
+            var whatsappService = ServiceProvider.GetRequiredService<IWhatsappService>();
+            await whatsappService.LoadWhatsappCredentials();
 
             // Create MainWindow via DI
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
@@ -56,7 +59,8 @@ namespace NwScheduleFormatter
 
             services.AddScoped<MainWindow>();
             services.AddScoped<IJwMeetingReader, JwMeetingReader>();
-            services.AddScoped<IWhatsappService, WhatsappService>();
+            services.AddSingleton<IWhatsappService, WhatsappService>();
+            services.AddSingleton<IWhatsAppConfigRepository, WhatsAppConfigRepository>();
             services.AddScoped<IWhatsAppMessagingService, WhatsAppMessagingService>();
             services.AddScoped<ISendingOfDesignationRepository, SendingOfDesignationRepository>();
             services.AddScoped<IDesignationContactRepository, DesignationContactRepository>();

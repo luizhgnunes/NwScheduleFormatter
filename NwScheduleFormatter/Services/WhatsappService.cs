@@ -1,5 +1,5 @@
-﻿using NwScheduleFormatter.Services.Interfaces;
-using System.IO;
+﻿using NwScheduleFormatter.Data.Repositories.Interfaces;
+using NwScheduleFormatter.Services.Interfaces;
 using System.Net.Http;
 using System.Text;
 using System.Text.Json;
@@ -9,45 +9,36 @@ namespace NwScheduleFormatter.Services;
 
 public class WhatsappService : IWhatsappService
 {
+    private readonly IWhatsAppConfigRepository _whatsAppConfigRepository;
+
     private string _accessToken;
     private string _phoneNumberId;
     private readonly string _businessAccountId;
     private readonly HttpClient _httpClient;
     private const string BaseUrl = "https://graph.facebook.com/v20.0";
 
-    public WhatsappService(string businessAccountId = "")
+    public WhatsappService(IWhatsAppConfigRepository whatsAppConfigRepository, string businessAccountId = "")
     {
+        _whatsAppConfigRepository = whatsAppConfigRepository;
         _businessAccountId = businessAccountId ?? throw new ArgumentNullException(nameof(businessAccountId));
         _httpClient = new HttpClient();
-        LoadWhatsappCredentials();
     }
 
-    private void LoadWhatsappCredentials(string jsonFilePath = "Configuration/whatsapp-config.json")
+    public async Task LoadWhatsappCredentials()
     {
-        string configPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, jsonFilePath);
-
-        if (!File.Exists(configPath))
-            return;
-
         try
         {
-            var json = File.ReadAllText(configPath);
-            var options = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
+            var whatsappConfig = await _whatsAppConfigRepository.GetConfigAsync();
 
-            var config = JsonSerializer.Deserialize<WhatsappConfig>(json, options);
+            if (string.IsNullOrWhiteSpace(whatsappConfig?.AccessToken) || string.IsNullOrWhiteSpace(whatsappConfig?.PhoneNumberId))
+                return;
 
-            if (config?.Whatsapp != null)
-            {
-                _accessToken = config.Whatsapp.AccessToken;
-                _phoneNumberId = config.Whatsapp.PhoneNumberId;
-            }
+            _accessToken = whatsappConfig.AccessToken;
+            _phoneNumberId = whatsappConfig.PhoneNumberId;
         }
         catch (Exception ex)
         {
-            System.Diagnostics.Debug.WriteLine($"Error while loading WhatsApp configuration JSON file: {ex.Message}");
+            System.Diagnostics.Debug.WriteLine($"Error while loading WhatsApp configuration: {ex.Message}");
         }
     }
 

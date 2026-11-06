@@ -125,7 +125,7 @@ public class JwMeetingReader : IJwMeetingReader
             await page.GoToAsync(url, navigationOptions);
 
             // Wait for the page to load completely, including any JavaScript-rendered content
-            await Task.Delay(1000);
+            await Task.Delay(2000);
 
             // Retorna o HTML completo após a renderização do JavaScript
             return await page.GetContentAsync();

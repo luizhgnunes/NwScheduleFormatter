@@ -186,9 +186,10 @@ public class FileService
         pdfRenderer.RenderDocument();
         
         var index = 1;
-        while (File.Exists(outputPath))
+        var newOutputFile = outputPath.ToString();
+        while (File.Exists(newOutputFile))
         {
-            outputPath = @$"{Path.GetDirectoryName(outputPath)}\{Path.GetFileNameWithoutExtension(outputPath)} ({index}){Path.GetExtension(outputPath)}";
+            newOutputFile = @$"{Path.GetDirectoryName(outputPath)}\{Path.GetFileNameWithoutExtension(outputPath)} ({index}){Path.GetExtension(outputPath)}";
             index++;
         }
 

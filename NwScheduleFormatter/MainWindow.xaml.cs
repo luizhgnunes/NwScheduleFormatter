@@ -1,6 +1,5 @@
 ﻿using Microsoft.Win32;
 using NwScheduleFormatter.Configuration;
-using NwScheduleFormatter.Models;
 using NwScheduleFormatter.Services;
 using NwScheduleFormatter.Services.Interfaces;
 using System.Reflection;
@@ -15,11 +14,13 @@ public partial class MainWindow : Window
 {
     private readonly IPdfGenerationService _pdfGenerationService;
     private readonly ICsvParsingService _csvParsingService;
+    private readonly IWhatsAppMessagingService _whatsAppMessagingService;
 
-    public MainWindow(IPdfGenerationService pdfGenerationService, ICsvParsingService csvParsingService)
+    public MainWindow(IPdfGenerationService pdfGenerationService, ICsvParsingService csvParsingService, IWhatsAppMessagingService whatsAppMessagingService)
     {
         _pdfGenerationService = pdfGenerationService;
         _csvParsingService = csvParsingService;
+        _whatsAppMessagingService = whatsAppMessagingService;
 
         InitializeComponent();
 
@@ -89,6 +90,9 @@ public partial class MainWindow : Window
 
         if (ChkGenarateStudentDesignations.IsChecked == true)
             await _pdfGenerationService.GenerateStudentDesignationsPdfAsync(TxtOutputDirectory.Text, meetings, progress, ChkGenarateMeetingProgram.IsChecked == true ? 10 : 20);
+
+        if (ChkSendWhatsappMessage.IsChecked == true)
+            await _whatsAppMessagingService.SendConfirmationRequestsAsync(meetings);
 
         BtnGenerate.IsEnabled = true;
     }

@@ -13,6 +13,7 @@ public class WhatsappService : IWhatsappService
 
     private string _accessToken;
     private string _phoneNumberId;
+    private string? _webhookUrl;
     private readonly string _businessAccountId;
     private readonly HttpClient _httpClient;
     private const string BaseUrl = "https://graph.facebook.com/v20.0";
@@ -35,6 +36,7 @@ public class WhatsappService : IWhatsappService
 
             _accessToken = whatsappConfig.AccessToken;
             _phoneNumberId = whatsappConfig.PhoneNumberId;
+            _webhookUrl = whatsappConfig.WebhookUrl;
         }
         catch (Exception ex)
         {

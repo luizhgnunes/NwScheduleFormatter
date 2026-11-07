@@ -162,5 +162,11 @@ public class NwScheduleFormatterDbContext : DbContext
             .HasColumnName("wc_phone_number_id")
             .HasMaxLength(30)
             .IsRequired(false);
+
+        modelBuilder.Entity<WhatsAppConfig>()
+            .Property(e => e.WebhookUrl)
+            .HasColumnName("wc_webhook_url")
+            .HasMaxLength(2048)
+            .IsRequired(false);
     }
 }

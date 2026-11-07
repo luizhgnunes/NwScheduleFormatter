@@ -20,4 +20,9 @@ public class WhatsAppConfig
     /// WhatsApp phone number ID.
     /// </summary>
     public string? PhoneNumberId { get; set; }
+
+    /// <summary>
+    /// WhatsApp webhook URL.
+    /// </summary>
+    public string? WebhookUrl { get; set; }
 }

@@ -12,7 +12,7 @@ public class WhatsAppConfig
     public int Id { get; set; }
 
     /// <summary>
-    /// WhatsApp API access token.
+    /// Encrypted whatsApp API access token.
     /// </summary>
     public string? AccessToken { get; set; }
 
@@ -25,4 +25,14 @@ public class WhatsAppConfig
     /// WhatsApp webhook URL.
     /// </summary>
     public string? WebhookUrl { get; set; }
+
+    /// <summary>
+    /// Whebhook user name.
+    /// </summary>
+    public string? WebhookUserName { get; set; }
+
+    /// <summary>
+    /// Encrypted webhook user password hash.
+    /// </summary>
+    public string? WebhookUserPassword { get; set; }
 }

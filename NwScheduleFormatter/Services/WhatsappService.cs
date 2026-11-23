@@ -34,7 +34,7 @@ public class WhatsappService : IWhatsappService
             if (string.IsNullOrWhiteSpace(whatsappConfig?.AccessToken) || string.IsNullOrWhiteSpace(whatsappConfig?.PhoneNumberId))
                 return;
 
-            _accessToken = whatsappConfig.AccessToken;
+            _accessToken = AesSecretProtector.Decrypt(whatsappConfig.AccessToken);
             _phoneNumberId = whatsappConfig.PhoneNumberId;
             _webhookUrl = whatsappConfig.WebhookUrl;
         }

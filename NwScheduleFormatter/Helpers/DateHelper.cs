@@ -11,7 +11,16 @@ public static class DateHelper
         if (isWeekEndsNextMonth)
         {
             var nextMonthName = GetMonthName(weekEndDate.Month);
-            return $"{mondayDate.Day} de {monthName}–{weekEndDate.Day}{(weekEndDate.Day == 1 ? ".º" : "")} de {nextMonthName}";
+
+            var currentYearSuffix = string.Empty;
+            var nextYearSuffix = string.Empty;
+            if (weekEndDate.Year != mondayDate.Year)
+            {
+                currentYearSuffix = $" de {mondayDate.Year}";
+                nextYearSuffix = $" de {weekEndDate.Year}";
+            }
+
+            return $"{mondayDate.Day} de {monthName}{currentYearSuffix}–{weekEndDate.Day}{(weekEndDate.Day == 1 ? ".º" : "")} de {nextMonthName}{nextYearSuffix}";
         }
 
         return $"{mondayDate.Day}-{mondayDate.Day + 6} de {monthName}";

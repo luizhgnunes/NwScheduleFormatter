@@ -121,4 +121,9 @@ public partial class MainWindow : Window
         if (result == true)
             TxtOutputDirectory.Text = folderDialog.FolderName;
     }
+
+    private void TextBlock_MouseLeftButtonUp(object sender, System.Windows.Input.MouseButtonEventArgs e)
+    {
+
+    }
 }

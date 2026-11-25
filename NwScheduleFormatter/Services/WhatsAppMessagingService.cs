@@ -48,19 +48,16 @@ public class WhatsAppMessagingService : IWhatsAppMessagingService
     {
         var reference = $"{meetingDate.ToString("yyyyMMdd")}-{partNumber}";
         var designationDate = meetingDate.AddDays((int)ApplicationSettings.MeetingDay);
-        if (await CheckIfConfirmationRequestWasSentAsync(reference, speakerName))
+        var designation = await _sendingOfDesignationRepository.GetSentDesignationAsync(reference, speakerName);
+        if (!string.IsNullOrWhiteSpace(designation?.WamId))
             return;
         
         var contact = activeContacts.FirstOrDefault(x => x.Name.Equals(speakerName, StringComparison.OrdinalIgnoreCase));
         assistant = string.IsNullOrWhiteSpace(assistant) ? "N/A" : assistant;
         var wamid = await SendMessageToContactAsync(contact, speakerName, assistant, designationDate, partNumber, "Salão Principal");
+        if ((designation?.Id ?? 0) > 0)
+            await _sendingOfDesignationRepository.DeleteAsync(designation.Id);
         await SaveSendingOfDesignationAsync(reference, speakerName, designationDate, wamid);
-    }
-
-    private async Task<bool> CheckIfConfirmationRequestWasSentAsync(string reference, string name)
-    {
-        var designation = await _sendingOfDesignationRepository.GetSentDesignationAsync(reference, name);
-        return designation != null;
     }
 
     private async Task<string?> SendMessageToContactAsync(DesignationContact contact, string speakerName, string assistantName, DateOnly designationDate, string partNumber, string location = "Salão Principal")
